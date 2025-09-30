@@ -1,0 +1,21 @@
+# Data artifacts
+/data/*
+!/data/.gitkeep
+
+# Output captures
+/outputs/*
+!/outputs/.gitkeep
+
+# Python cache files
+__pycache__/
+*.py[cod]
+*.so
+*.pyd
+*.pyo
+
+# Test cache
+.pytest_cache/
+
+# OS cruft
+.DS_Store
+Thumbs.db

@@ -1,0 +1,4 @@
+[console_scripts]
+robot-sim-demo = robot_sim_py.app:main
+robot-sim-gemini-image-test = robot_sim_py.gemini_image_test:main
+robot-sim-ogl = robot_sim_py.ogl_app:main

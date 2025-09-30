@@ -1,0 +1,35 @@
+[build-system]
+requires = ["setuptools>=64", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "robot-sim-py"
+version = "0.1.0"
+description = "Modern Python reboot of the RobotSim 6-DOF manipulator simulator"
+readme = "README.md"
+authors = [{"name" = "RobotSim Maintainers"}]
+requires-python = ">=3.9"
+dependencies = [
+    "numpy>=1.24",
+    "matplotlib>=3.8",
+    "PyOpenGL>=3.1",
+    "glfw>=2.6",
+    "pillow>=10.4",
+    "google-genai>=0.6.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7",
+]
+
+[project.scripts]
+robot-sim-demo = "robot_sim_py.app:main"
+robot-sim-ogl = "robot_sim_py.ogl_app:main"
+robot-sim-gemini-image-test = "robot_sim_py.gemini_image_test:main"
+
+[tool.setuptools.packages.find]
+include = ["robot_sim_py*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
