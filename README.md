@@ -1,6 +1,12 @@
 # RobotSim Python Edition
 
-Modern Python recreation of the classic 1999 **RobotSim** desktop demonstrator. This edition keeps the 6-DOF manipulator behaviour while adding clean Python APIs, a refreshed OpenGL renderer, and optional Gemini Robotics perception for automatic target acquisition.
+![RobotSim2](RobotSim2.png)
+
+# RobotSim2 OpenGL Simulator with IK and Gemini Robotics Support
+
+![RobotSim2](RobotSim2.png)
+
+Modern Python recreation of the classic 1999 **RobotSim** desktop demonstrator, originally developed during my M.Sc. studies. This edition keeps the 6-DOF manipulator behaviour while adding clean Python APIs, a refreshed OpenGL renderer, and optional Gemini Robotics perception for automatic target acquisition.
 
 ---
 
