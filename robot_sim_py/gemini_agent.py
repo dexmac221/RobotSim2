@@ -172,11 +172,17 @@ class GeminiRobotAgent:
                 )
                 return None
             self.last_orientation = orientation
+            # Use the approach height that was tested in find_feasible_orientation
+            # to ensure consistency between orientation search and actual IK solve
+            hover_padding = 0.05
+            approach_height = max(TABLE_HEIGHT + hover_padding, float(tip_position[2]) + hover_padding)
+            hover_tip_position = np.array([tip_position[0], tip_position[1], approach_height], dtype=float)
         else:
             orientation = DEFAULT_ORIENTATION
             self.last_orientation = orientation
+            hover_tip_position = tip_position
 
-        hover_pose = self._hover_pose_for_tip(tip_position, orientation)
+        hover_pose = self._hover_pose_for_tip(hover_tip_position, orientation)
         self.last_hover_pose = hover_pose
 
         try:
