@@ -162,19 +162,9 @@ Add to `.vscode/settings.json`:
 }
 ```
 
-## 📦 CI/CD
+## 🎓 VS Code Integration (Optional)
 
-The GitHub Actions workflow (`.github/workflows/ci.yml`) automatically runs:
-- Tests on Python 3.9, 3.10, 3.11
-- Tests on Ubuntu, macOS, Windows
-- Black formatting check
-- Ruff linting
-- mypy type checking
-- Syntax compilation
-
-No setup needed - it runs automatically on push/PR!
-
-## 🆘 Troubleshooting
+Add to `.vscode/settings.json`:
 
 ### Black and Ruff disagree on formatting
 This shouldn't happen with the current config, but if it does:

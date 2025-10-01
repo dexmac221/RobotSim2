@@ -2,7 +2,45 @@
 
 ![RobotSim2](RobotSim2.png)
 
-Modern Python recreation of my 1999 **RobotSim** desktop demonstrator, originally developed during my M.Sc. studies. This edition keeps the 6-DOF manipulator behaviour while adding clean Python APIs, a refreshed OpenGL renderer, and optional Gemini Robotics perception for automatic target acquisition.
+Modern Python recreation of my 1999 **RobotSim** desktop demonstrator, originally developed during my M.Sc. studies## 📌 Notes
+
+- The original Visual Studio C++ sources and binaries have been removed to keep the repository focused on the Python reimplementation.
+- For headless environments (e.g., CI), you can exercise kinematics and Gemini utilities without launching OpenGL.
+- Contributions are welcome—new trajectory primitives, physics integration, or WebGL front-ends are all great future extensions.
+
+---
+
+## 🔒 Security Considerations
+
+- **API Keys**: Store your `GEMINI_API_KEY` securely. Never commit API keys to version control.
+- **Network Requests**: The Gemini integration makes external API calls. Use in trusted networks only.
+- **Input Validation**: While this simulator includes basic validation, always validate external inputs in production environments.
+- **Simulation vs Reality**: Simulated kinematics may not perfectly match real hardware due to mechanical tolerances, flexing, calibration errors, etc.
+
+---
+
+## 📝 License & Disclaimer
+
+This project is licensed under the [Apache License 2.0](LICENSE). The same license is used by Google's Gemini Robotics samples, ensuring compatibility with downstream integrations and contributions.
+
+**DISCLAIMER**: This software is provided "AS IS", WITHOUT WARRANTY OF ANY KIND, express or implied, including but not limited to the warranties of merchantability, fitness for a particular purpose and noninfringement. In no event shall the authors or copyright holders be liable for any claim, damages or other liability, whether in an action of contract, tort or otherwise, arising from, out of or in connection with the software or the use or other dealings in the software.
+
+**This is demonstration software only. Do not use to control real robots or in safety-critical applications.**ion keeps the 6-DOF manipulator behaviour while adding clean Python APIs, a refreshed OpenGL renderer, and optional Gemini Robotics perception for automatic target acquisition.
+
+---
+
+## ⚠️ Important Safety & Security Notice
+
+**THIS IS A DEMONSTRATION AND EDUCATIONAL PROJECT ONLY.**
+
+- 🚫 **NOT FOR PRODUCTION USE** – This simulator is intended for learning, research, and experimentation only.
+- 🚫 **NOT FOR REAL ROBOTS** – Do not use this code to control actual physical robots or machinery without extensive safety testing, validation, and proper safety systems.
+- 🚫 **NO WARRANTY** – This software is provided "as is" without any guarantees of correctness, safety, or fitness for any particular purpose.
+- 🚫 **NO LIABILITY** – The author assumes NO responsibility for any damages, injuries, or losses resulting from the use or misuse of this software.
+- ⚠️ **EXPERIMENTAL AI INTEGRATION** – The Gemini Robotics integration is experimental. AI-generated control commands may be unpredictable and should never be used in safety-critical applications.
+- ⚠️ **USER RESPONSIBILITY** – If you adapt this code for any real-world application, YOU are solely responsible for ensuring safety, compliance with regulations, and proper risk assessment.
+
+**Use at your own risk. This is a simulation tool for educational purposes only.**
 
 ---
 
