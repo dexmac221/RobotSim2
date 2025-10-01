@@ -5,6 +5,7 @@ Summary: Modern Python reboot of the RobotSim 6-DOF manipulator simulator
 Author: RobotSim Maintainers
 Requires-Python: >=3.9
 Description-Content-Type: text/markdown
+License-File: LICENSE
 Requires-Dist: numpy>=1.24
 Requires-Dist: matplotlib>=3.8
 Requires-Dist: PyOpenGL>=3.1
@@ -13,111 +14,194 @@ Requires-Dist: pillow>=10.4
 Requires-Dist: google-genai>=0.6.0
 Provides-Extra: dev
 Requires-Dist: pytest>=7; extra == "dev"
+Requires-Dist: black>=23.0; extra == "dev"
+Requires-Dist: mypy>=1.0; extra == "dev"
+Requires-Dist: ruff>=0.1.0; extra == "dev"
+Dynamic: license-file
 
-# RobotSim Python Edition
+# RobotSim2 OpenGL Simulator with IK and Gemini Robotics Support
 
-A modern Python reimplementation of the 1999 **RobotSim** desktop demonstrator. The goal is to keep the original 6-DOF manipulator behaviour and provide clean Python hooks that can be driven from Visual Language Action (VLA) agents or other automation frameworks.
+![RobotSim2](RobotSim2.png)
 
-## Features
+Modern Python recreation of my 1999 **RobotSim** desktop demonstrator, originally developed during my M.Sc. studies. This edition keeps the 6-DOF manipulator behaviour while adding clean Python APIs, a refreshed OpenGL renderer, and optional Gemini Robotics perception for automatic target acquisition.
 
-- Forward and inverse kinematics for a 6-joint articulated arm using damped least squares.
-- Manual joint-space control and trajectory tracking controllers.
-- Interpolated Cartesian trajectories with smooth quaternion slerp orientation blending.
-- Realtime OpenGL viewer with orbit, hand-mounted, and overhead cameras plus PNG capture pipelines.
-- Optional Gemini Robotics integration to localize the red target from the top camera and command the arm automatically.
-- JSON logging output for easy consumption by VLA or other orchestration layers.
+---
 
-## Project layout
+## ✨ Highlights
+
+- **Analytic kinematics** – Forward / inverse kinematics with damped least squares, Jacobians, and reusable `RobotModel` + `RobotState` abstractions.
+- **Interactive viewer** – OpenGL app with orbit camera, inset hand camera, overhead capture pipeline, and animated gripper that closes around the target.
+- **Trajectory tooling** – Manual joint jogs, reusable trajectory controllers, and spline helpers for composing motions programmatically.
+- **Gemini Robotics integration** – Single-shot or streaming calls to Gemini Robotics models, with workspace-aware target clamping, orientation search, and rich debug logs (pixel coordinates, camera projection, world pose).
+- **Automation ready** – Structured JSON logs, head-camera frame dumps, and a fully tested Python package that plays nicely with VLA agents or other orchestration frameworks.
+
+---
+
+## 📁 Repository layout
 
 ```
 robot_sim_py/
-  ogl_app.py        # Interactive OpenGL viewer
-  gemini_agent.py   # Gemini Robotics helper for top-view visual servoing
-  scene.py          # Shared scene constants (table height, target placement)
-  robot.py          # Robot model, pose representation, FK/IK and Jacobian logic
-  controllers.py    # Manual and trajectory controllers
-  trajectory.py     # Pose interpolation utilities
-  viewer.py         # Lightweight Matplotlib viewer
-  app.py            # CLI demo entry-point
+  __init__.py
+  app.py             # CLI entry point for scripted demos
+  ogl_app.py         # Interactive OpenGL viewer & Gemini orchestration
+  gemini_agent.py    # Gemini Robotics helpers & coordinate transforms
+  robot.py           # Robot kinematics, Pose helpers, Jacobians
+  controllers.py     # Manual & trajectory controllers
+  trajectory.py      # Trajectory primitives and interpolation helpers
+  scene.py           # Shared scene constants, workspace limits
+  reachability.py    # Orientation search utilities
+tests/
+  ...                # Pytest suite covering kinematics & Gemini logic
 ```
 
-Tests live in `tests/` and exercise core kinematics routines.
+Generated assets and logs are written under `data/` and `outputs/`. The legacy C++ Visual Studio project has been removed so the repository is now Python-only.
 
-## Quickstart
+---
 
-It is recommended to reuse the existing `gemini-robotics` Conda environment mentioned in the prompt.
+## 🚀 Quick start
 
-```bash
-conda activate gemini-robotics
-pip install -e .[dev]
-robot-sim-demo --duration 6 --dt 0.05
-# Launch the OpenGL viewer (requires an OpenGL-capable display)
-robot-sim-ogl --auto
-# Disable the hand camera overlay if desired
-robot-sim-ogl --no-hand-view
-# Save per-frame hand camera images to disk
-robot-sim-ogl --capture-dir data/hand_frames
-# Save overhead camera frames at custom resolution
-robot-sim-ogl --top-capture-dir data/top_frames --top-capture-size 640 640
-# Drive the robot with Gemini Robotics (requires API key)
-robot-sim-ogl --gemini --gemini-api-key YOUR_KEY_HERE
-```
+1. **Create / activate an environment** (Python 3.10+ recommended):
 
-Add `--headless` to run without the Matplotlib viewer and `--log robot_log.json` to capture end-effector positions.
+  ```bash
+  conda create -n robotsim python=3.10 -y
+  conda activate robotsim
+  ```
 
-### OpenGL viewer controls
+2. **Install RobotSim** in editable mode with dev extras:
+
+  ```bash
+  pip install -e .[dev]
+  ```
+
+3. **Run the demo CLI** (headless trajectory playback):
+
+  ```bash
+  robot-sim-demo --duration 6 --dt 0.05
+  ```
+
+4. **Launch the OpenGL viewer** (requires an OpenGL-capable display):
+
+  ```bash
+  robot-sim-ogl --auto
+  ```
+
+Common options:
+
+| Option | Purpose |
+| --- | --- |
+| `--joint-count 4` | Simulate a 4-DOF version of the arm (supports 1–6 joints) |
+| `--no-hand-view` | Hide the inset hand camera |
+| `--capture-dir data/hand_frames` | Save hand-camera PNG frames |
+| `--top-capture-dir data/head_frames` | Save head-camera frames for Gemini |
+| `--top-capture-size 640 640` | Override capture resolution |
+| `--log robot_log.json` | Dump end-effector telemetry |
+| `--free-wrist` / `--free-joints` | Allow relaxed wrist/yaw targeting |
+
+Use `robot-sim-ogl --help` for the full list.
+
+---
+
+## 🎮 Viewer controls
 
 | Keys | Action |
 |------|--------|
 | `1`–`6` | Select joint to manipulate |
 | `J` / `K` | Decrease / increase selected joint angle |
 | `Space` | Toggle automatic trajectory playback |
-| `R` | Reset joints to zero pose |
-| `Arrow keys` | Rotate camera yaw/pitch |
-| `Page Up` / `Page Down` | Zoom in / out |
-| `=` / `+` or `-` | Increase / decrease manual joint speed |
-| `V` | Toggle the hand-mounted camera viewport |
-| `G` | Toggle the Gemini Robotics agent (when enabled) |
-| `H` | Print control help to the console |
-| `Esc` | Exit viewer |
+| `R` | Reset joints, rebuild trajectory, trigger Gemini single-shot |
+| `NumPad 8 / 2` | Nudge target +Y / -Y |
+| `NumPad 4 / 6` | Nudge target -X / +X |
+| `NumPad 7 / 1` | Raise / lower target |
+| `NumPad 5` | Randomize target position within workspace |
+| `B` | Print the target's world coordinates |
+| `Arrow keys` | Orbit camera |
+| `Page Up` / `Page Down` | Zoom |
+| `=` / `+` / `-` | Adjust manual jog speed |
+| `V` | Toggle hand camera |
+| `G` | Start/stop Gemini control loop |
+| `A` | Queue another Gemini capture with the current target |
+| `H` | Reprint control help |
+| `Esc` | Quit |
 
-When `--capture-dir` is provided, every rendered hand-camera frame is stored as a PNG sequence (e.g. `hand_00000.png`).
+Hand-camera and overhead capture directories store PNG sequences (`hand_00000.png`, `head_00000.png`, …) whenever the corresponding options are enabled.
 
-Provide `--top-capture-dir` (optionally with `--top-capture-size WIDTH HEIGHT`) to render a second pass from an overhead camera and export PNG frames such as `top_00000.png`. These RGB captures are ideal for dataset creation or VLA perception grounding.
+---
 
-### Gemini Robotics integration
+## 🤖 Gemini Robotics integration
 
-Set the `GEMINI_API_KEY` (or `GENAI_API_KEY`/`GOOGLE_API_KEY`) environment variable, or pass `--gemini-api-key`, then launch:
+1. Export your API key: `export GEMINI_API_KEY=...` (alternatively `GENAI_API_KEY` or `GOOGLE_API_KEY`).
+2. Launch the viewer with Gemini enabled:
 
-```bash
-robot-sim-ogl --gemini
+  ```bash
+  robot-sim-ogl --gemini --free-joints
+  ```
+
+3. Reset the robot (`R`) to trigger a single-shot perception/control cycle.
+
+Key flags:
+
+| Flag | Description |
+| --- | --- |
+| `--gemini-model` | Gemini Robotics model ID (default `gemini-robotics-er-1.5-preview`) |
+| `--gemini-mode` | `single` (default) or `stream` for continuous updates |
+| `--joint-count` | Number of arm joints to simulate (1–6). Affects kinematics, rendering, and controllers |
+| `--gemini-joint-count` | Override the joint count mentioned in the Gemini prompt (defaults to the simulated arm) |
+| `--gemini-interval` | Minimum seconds between requests |
+| `--gemini-hover-height` | Hover distance above the table before descent |
+| `--free-wrist` / `--free-joints` | Enables orientation search so the arm can reach edge targets |
+
+Every Gemini request now prints a concise summary such as:
+
+```
+Gemini target px=(498, 500) → world=(+0.238, -0.399, +0.160) rpy=(180.0°, +0.0°, -128.7°) via camera (clamped)
 ```
 
-The viewer renders an overhead frame every refresh, sends it to the `gemini-robotics-er-1.5-preview` model, and maps the detected red target to Cartesian workspace coordinates. The arm then solves IK to hover above the predicted target location. Use `--gemini-model`, `--gemini-interval`, `--gemini-thinking-budget`, or `--gemini-hover-height` to fine-tune the behaviour. Press `G` in the viewer to pause/resume Gemini-driven control.
+If inverse kinematics or orientation search fails, the status line explains which stage was rejected along with the pixel-to-world mapping that prompted it.
 
-### 🔬 Testing Gemini Robotics with a saved frame
+### Debug artifacts
 
-The Gemini Robotics quick-start docs also show how to query the model with an offline image. Capture a top camera PNG using `--top-capture-dir`, then run:
+Provide `--gemini-debug-dir logs/gemini` to persist:
+
+- Captured head-camera frame (`.png`),
+- Parsed Gemini detections,
+- World-frame fingertip targets and chosen wrist orientations,
+- Full hover pose transform matrices,
+- Latest camera intrinsics/extrinsics snapshot.
+
+This is ideal for auditing Gemini results or building datasets for offline evaluation.
+
+### Offline image testing
+
+You can reproduce a Gemini call with any saved frame:
 
 ```bash
-robot-sim-gemini-image-test data/top_frames/top_00012.png --dump-json outputs/gemini_result.json
+robot-sim-gemini-image-test data/head_frames/head_00012.png \
+  --dump-json outputs/gemini_result.json \
+  --joint-count 4 \
+  --gemini-api-key "$GEMINI_API_KEY"
 ```
 
-The helper prints the raw JSON emitted by Gemini, converts every detection into RobotSim tabletop coordinates, and optionally stores the result for later analysis. Provide `--gemini-api-key` (or rely on your environment variables) plus `--model` and `--thinking-budget` flags to mirror the examples in the Gemini documentation.
+The helper prints the raw model response and the mapped tabletop coordinates used by the controller.
 
-## Embedding with Visual Language Action
+---
 
-The package exposes clean Python primitives:
+## 🧪 Running the tests
 
-- `RobotModel` / `RobotState` for low-level access.
-- `ManualController` to apply joint deltas from language commands.
-- `TrajectoryController` to stream higher-level movement intents.
-- `Trajectory.linear_path` (and extendable future generators) to build paths from natural language parameters.
+```bash
+pytest
+```
 
-Example snippet for VLA integration:
+The suite covers kinematics, reachability bounds, and Gemini mapping edge cases. All 15 tests pass after the latest workspace and logging improvements.
+
+---
+
+## 🤝 Embedding & automation
+
+Core primitives live in `robot_sim_py` and are designed for direct use inside VLA agents or other planners:
 
 ```python
-from robot_sim_py import RobotModel, ManualController, RobotState
+from robot_sim_py.robot import RobotModel, RobotState
+from robot_sim_py.controllers import ManualController
 
 robot = RobotModel.default()
 controller = ManualController(robot, RobotState.zeros())
@@ -126,14 +210,18 @@ pose = robot.forward_kinematics(state.joint_angles)
 print(pose.position)
 ```
 
-(For convenience a `RobotState.zeros()` helper is added in code.)
+Trajectory builders, controllers, and scene constants make it straightforward to translate natural-language commands into joint-space motions.
 
-## Development
+---
 
-Run the unit tests and static checks:
+## 📌 Notes
 
-```bash
-pytest
-```
+- The original Visual Studio C++ sources and binaries have been removed to keep the repository focused on the Python reimplementation.
+- For headless environments (e.g., CI), you can exercise kinematics and Gemini utilities without launching OpenGL.
+- Contributions are welcome—new trajectory primitives, physics integration, or WebGL front-ends are all great future extensions.
 
-Future improvements could include richer trajectory generators, physics integration, or a WebGL front-end.
+---
+
+## 📝 License
+
+This project is licensed under the [Apache License 2.0](LICENSE). The same license is used by Google’s Gemini Robotics samples, ensuring compatibility with downstream integrations and contributions.

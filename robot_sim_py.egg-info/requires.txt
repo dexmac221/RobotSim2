@@ -7,3 +7,6 @@ google-genai>=0.6.0
 
 [dev]
 pytest>=7
+black>=23.0
+mypy>=1.0
+ruff>=0.1.0

@@ -40,6 +40,9 @@ LOGGER = logging.getLogger(__name__)
 
 _TIP_FORWARD_VECTOR = np.array([TIP_FORWARD_OFFSET, 0.0, 0.0], dtype=float)
 
+# Note: Double braces {{}} are required to escape literal braces in Python format strings.
+# This prevents KeyError when formatting the template with joint_count while preserving
+# the JSON structure in the prompt sent to the Gemini model.
 _GEMINI_PROMPT_TEMPLATE = (
     "You are assisting a {joint_count} degree-of-freedom robot arm that sees the workspace from a "
     "head-mounted RGB camera. Identify the small red target object on the table and return its "
@@ -239,9 +242,16 @@ class GeminiRobotAgent:
                 contents=contents,
                 config=config,
             )
-        except Exception as exc:  # pragma: no cover - network failure
+        except (ConnectionError, TimeoutError) as exc:  # pragma: no cover - network failure
             self._handle_request_exception(exc)
-            LOGGER.error("Gemini API request failed: %s", exc)
+            LOGGER.error("Gemini API network error: %s", exc)
+            return [], ""
+        except ValueError as exc:  # pragma: no cover - invalid request
+            LOGGER.error("Gemini API invalid request: %s", exc)
+            return [], ""
+        except Exception as exc:  # pragma: no cover - unexpected errors
+            self._handle_request_exception(exc)
+            LOGGER.error("Gemini API unexpected error: %s", exc)
             return [], ""
 
         raw_text = response.text or ""
